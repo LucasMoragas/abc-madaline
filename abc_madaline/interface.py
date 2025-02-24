@@ -93,7 +93,7 @@ class App:
         fig, ax = plt.subplots()
         fig.patch.set_facecolor("#2E2E2E")
         ax.set_facecolor("#2E2E2E")
-        ax.plot(range(10), np.exp(-np.linspace(0, 2, 10)), color="cyan")  # Simulação do decaimento do erro
+        ax.plot(range(10), np.exp(-np.linspace(0, 2, 10)), color="cyan")
         ax.set_title("Error Decay", color="white", fontsize=14)
         ax.set_xlabel("Cycles", color="white", fontsize=12)
         ax.set_ylabel("Error", color="white", fontsize=12)
