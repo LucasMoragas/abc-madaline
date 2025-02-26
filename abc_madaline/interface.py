@@ -150,6 +150,13 @@ class App:
         if result is not None:
             identified_char_index = np.argmax(result)
             identified_char = chr(identified_char_index + ord('A'))
+
+            # Conserto provisório: mapear F -> J e G -> K
+            if identified_char == 'F':
+                identified_char = 'J'
+            elif identified_char == 'G':
+                identified_char = 'K'
+
             self.result_label.config(text=f"Identified Character: {identified_char}")
         else:
             self.result_label.config(text="Identified Character: None")
