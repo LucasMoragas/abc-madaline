@@ -6,19 +6,23 @@ class Madaline:
         self.output_size = output_size
         self.learning_rate = learning_rate
         self.epochs = epochs
-        self.weights = np.random.uniform(-1, 1, (output_size, input_size))
-        self.bias = np.random.uniform(-1, 1, output_size)
+        self.weights = np.random.uniform(-0.1, 0.1, (output_size, input_size))
+        self.bias = np.random.uniform(-0.1, 0.1, output_size)
 
     def activation(self, x):
-        return np.where(x >= 0, 1, -1)
+        return np.where(x >= 0, 1, 0)
 
     def train(self, X, y):
-        for _ in range(self.epochs):
-            for i in range(len(X)):
-                output = self.activation(np.dot(self.weights, X[i]) + self.bias)
-                error = y[i] - output
-                self.weights += self.learning_rate * np.outer(error, X[i])
-                self.bias += self.learning_rate * error
+        total_error = 0
+        for i in range(len(X)):
+            output = self.activation(np.dot(self.weights, X[i]) + self.bias)
+            error = y[i] - output
+            total_error += np.sum(error ** 2)  # Erro quadrático médio
+            self.weights += self.learning_rate * np.outer(error, X[i])
+            self.bias += self.learning_rate * error
+        return total_error / len(X)  # Retornar o erro médio
 
     def predict(self, X):
-        return self.activation(np.dot(self.weights, X) + self.bias)
+        X = X.reshape(-1, self.input_size)  # Garante que a entrada esteja no formato correto
+        return self.activation(np.dot(self.weights, X.T) + self.bias[:, np.newaxis]).T
+

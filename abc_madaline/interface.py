@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from abc_madaline.madaline import Madaline
+import os
 
 class App:
     def __init__(self, root, master=None):
@@ -67,8 +68,10 @@ class App:
         self.right_frame.pack(side=RIGHT, fill=BOTH, expand=True, padx=20, pady=20)
         
         self.right_frame.configure(bg="#2E2E2E")
-        self.plot_mock_graph()
+        self.plot_error_graph(errors=[0])
         
+        self.madaline = None  # Initialize Madaline model as None
+
     def clear(self):
         for row in self.checkboxes:
             for checkbox in row:
@@ -79,21 +82,29 @@ class App:
     
     def get_cycles(self):
         try:
-            return int(self.cycles_entry.get())
+            value = int(self.cycles_entry.get())
+            return max(value, 1)  # Garante ao menos 1 ciclo
         except ValueError:
-            return 0
-    
+            return 1
+
     def get_learning_rate(self):
         try:
-            return float(self.learning_rate_entry.get())
+            value = float(self.learning_rate_entry.get())
+            return max(value, 0.001)  # Garante uma taxa mínima positiva
         except ValueError:
-            return 0.0
-    
-    def plot_mock_graph(self):
+            return 0.1
+
+    def plot_error_graph(self, errors):
+        if not errors:
+            return  # Se não houver erros, não exibe nada
+        
+        for widget in self.right_frame.winfo_children():
+            widget.destroy()  # Remove os gráficos antigos
+        
         fig, ax = plt.subplots()
         fig.patch.set_facecolor("#2E2E2E")
         ax.set_facecolor("#2E2E2E")
-        ax.plot(range(10), np.exp(-np.linspace(0, 2, 10)), color="cyan")
+        ax.plot(range(len(errors)), errors, color="cyan")
         ax.set_title("Error Decay", color="white", fontsize=14)
         ax.set_xlabel("Cycles", color="white", fontsize=12)
         ax.set_ylabel("Error", color="white", fontsize=12)
@@ -102,12 +113,46 @@ class App:
         self.canvas = FigureCanvasTkAgg(fig, master=self.right_frame)
         self.canvas.get_tk_widget().pack(fill=BOTH, expand=True)
         self.canvas.draw()
-    
+
     def train(self):
-        pass
+        cycles = self.get_cycles()
+        learning_rate = self.get_learning_rate()
+        
+        if cycles <= 0 or learning_rate <= 0:
+            print("Parâmetros inválidos!")
+            return
+        
+        # Load training data
+        data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "letters_7x9.npy")
+        data = np.load(data_path, allow_pickle=True).item()
+        X_train = data['X']
+        y_train = np.eye(len(data['y']))[data['y']]
+        
+        # Initialize and train the Madaline model
+        self.madaline = Madaline(input_size=X_train.shape[1], output_size=y_train.shape[1], learning_rate=learning_rate, epochs=cycles)
+        
+        errors = []
+        for epoch in range(cycles):
+            error = self.madaline.train(X_train, y_train)
+            errors.append(error)
+            print(f"Época {epoch+1}/{cycles} - Erro: {error}")
+            
+        self.plot_error_graph(errors)
     
     def identify(self):
-        self.result_label.config(text="Identified Character: L")
+        if not hasattr(self, 'madaline'):
+            print("A rede não foi treinada ainda!")
+            return
+        
+        input_data = self.get_matrix().reshape(1, -1)
+        result = self.madaline.predict(input_data)
+        
+        if result is not None:
+            identified_char_index = np.argmax(result)
+            identified_char = chr(identified_char_index + ord('A'))
+            self.result_label.config(text=f"Identified Character: {identified_char}")
+        else:
+            self.result_label.config(text="Identified Character: None")
     
     def on_close(self):
         self.root.quit()
