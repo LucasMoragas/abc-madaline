@@ -23,6 +23,9 @@ class Madaline:
         self.weights = np.random.uniform(-0.5, 0.5, (self.num_neurons, self.input_size))
         self.bias = np.random.uniform(-0.5, 0.5, self.num_neurons)
         
+        self.X_error_axis = []
+        self.y_error_axis = []
+        
     def activation(self, x):
         """Função de ativação degrau bipolar vetorizada"""
         return np.where(x >= 0, 1, -1)
@@ -34,8 +37,8 @@ class Madaline:
 
     def train(self):
         """Treina a rede Madaline"""
-        X_axis_error = []
-        y_axis_error = []
+        self.X_train = []
+        self.y_train = []
         for epoch in range(self.epochs):
             for i in range(self.X_train.shape[0]):
                 x = self.X_train[i]  # Entrada (vetor de 63 posições)
@@ -49,8 +52,8 @@ class Madaline:
                 e = t - y_pred
                 
                 # Adiciona erro ao gráfico
-                X_axis_error.append(epoch)
-                y_axis_error.append(np.sum(e))
+                self.X_error_axis.append(epoch)
+                self.y_error_axis.append(np.sum(e))
                 
                 # Atualiza apenas os pesos dos neurônios com erro
                 update_indices = np.where(e != 0)[0]  # Índices onde há erro
@@ -61,15 +64,8 @@ class Madaline:
             # Exibir progresso a cada 10 epochs
             if epoch % 10 == 0:
                 print(f"Epoch {epoch}/{self.epochs}: Treinando...")
-        
-        # Retorna os erros para plotagem
-        axis_error = {
-            'X': X_axis_error,
-            'y': y_axis_error
-        }
 
         print("Treinamento concluído!")
-        return axis_error
 
     def identify_letter(self, x):
         """Retorna a letra correspondente ao índice previsto"""
@@ -86,8 +82,6 @@ class Madaline:
 if __name__ == '__main__':
     madaline = Madaline()
     axis_error = madaline.train()
-    
-    print(f'End of the error array: {list(map(int, axis_error['y'][85:99]))}')
     
     for i in range(21):
         test_sample = get_X_train()[i]
