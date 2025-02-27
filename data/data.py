@@ -1,6 +1,6 @@
 import numpy as np
 
-def get_data():
+def get_matrix():
     data = {
         'A1': np.array([
             [0,0,1,1,0,0,0],
@@ -255,3 +255,19 @@ def get_data():
     
     return data
 
+def get_X_train():
+
+    letters = get_matrix()
+    X_train = np.array([letters[key].flatten() for key in letters])
+    
+    return X_train
+
+def get_y_train():
+    y_train = np.array([0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7])
+    
+    return y_train
+
+if __name__ == '__main__':
+    print('X_train and y_train:\n')
+    print('X_train: \n', get_X_train())
+    print('y_train: \n', get_y_train())
