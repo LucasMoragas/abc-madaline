@@ -122,13 +122,13 @@ class App:
             print("Parâmetros inválidos!")
             return
         
-        # Load training data
+        # Carrega os dados de treinamento
         data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "letters_7x9.npy")
         data = np.load(data_path, allow_pickle=True).item()
         X_train = data['X']
-        y_train = np.eye(len(data['y']))[data['y']]
+        y_train = np.eye(len(data['y']))[data['y']]  # One-hot encoding
         
-        # Initialize and train the Madaline model
+        # Inicializa e treina a rede Madaline
         self.madaline = Madaline(input_size=X_train.shape[1], output_size=y_train.shape[1], learning_rate=learning_rate, epochs=cycles)
         
         errors = []
@@ -138,6 +138,16 @@ class App:
             print(f"Época {epoch+1}/{cycles} - Erro: {error}")
             
         self.plot_error_graph(errors)
+
+    def calculate_accuracy(self, X_test, y_test):
+        correct = 0
+        for i in range(len(X_test)):
+            prediction = self.madaline.predict(X_test[i])
+            if np.argmax(prediction) == np.argmax(y_test[i]):
+                correct += 1
+        accuracy = correct / len(X_test)
+        print(f"Acurácia: {accuracy * 100:.2f}%")
+        return accuracy
     
     def identify(self):
         if not hasattr(self, 'madaline'):
