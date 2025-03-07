@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from abc_madaline.madaline import Madaline
+from abc_madaline.Madaline import Madaline
 from data.data import get_matrices
 
 class App:

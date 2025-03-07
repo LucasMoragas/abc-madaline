@@ -78,7 +78,7 @@ class Madaline:
                 self.X_error_axis.append(epoch)
                 self.y_error_axis.append(0.5 * self.sum_error)
                 epoch += 1
-                if self.sum_error <= error_threshold:
+                if (self.sum_error * 0.5) <= error_threshold:
                     break
 
         print("Treinamento concluído!")
