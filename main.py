@@ -1,4 +1,4 @@
-from abc_madaline.interface import App
+from abc_madaline.Interface import App
 import tkinter as tk
 
 if __name__ == "__main__":
